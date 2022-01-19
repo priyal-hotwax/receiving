@@ -50,7 +50,10 @@ ion-card {
   HotWax Commerce sets the standard width for desktop as 1110px.
 */
 ion-content div {
-  max-width: 1110px;
+  max-width: 100%;
   margin-right: auto;
   margin-left: auto;
+}
+ion-menu {
+  max-width: 400px;
 }

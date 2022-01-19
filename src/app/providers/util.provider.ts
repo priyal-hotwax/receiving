@@ -61,6 +61,53 @@ export class UtilProvider {
     });
   }
 
+  getPurchaseOrders(viewSize, field, group, limit, orderId?) {
+    console.log(orderId);
+    let params = {};
+    return new Promise((resolve, reject) => {
+    if(orderId) {
+      params = {
+        "json": {
+          "params": {
+            "rows": viewSize,
+            "group": group,
+            "group.field": field,
+            "group.limit": limit
+          },
+          "query": "docType:ORDER",
+          "filter": [
+            "orderTypeId: PURCHASE_ORDER",
+            "orderId:"+orderId+""
+          ]
+        }
+       }
+      } else {
+        params = {
+          "json": {
+            "params": {
+              "rows": viewSize,
+              "group": group,
+              "group.field": field,
+              "group.limit": limit
+            },
+            "query": "docType:ORDER",
+            "filter": [
+              "orderTypeId: PURCHASE_ORDER"
+            ]
+          }
+        }
+      }
+      this.hcProvider.callRequest('post', 'solr-query', params).subscribe((data: any) => {
+        let docs = data.body.grouped.orderId.groups.map(item => item.doclist.docs[0]);
+        if(docs) {
+          resolve(docs);
+        }
+      }, (err) => {
+        reject(err);
+      });
+    });
+  }
+
   findProduct(query) {
     return new Promise((resolve, reject) => {
       this.hcProvider.callRequest('post', encodeURI('products?'+ query )).subscribe((data: any) => {

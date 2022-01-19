@@ -27,8 +27,26 @@ const routes: Routes = [
     ]
   },
   {
+    path: 'purchase-orders',
+    canLoad: [AuthGuard],
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('../app/pages/purchase-orders/purchase-orders.module').then( m => m.PurchaseOrdersModule),
+      },
+      {
+        path: ':id',
+        loadChildren: () => import('../app/pages/purchase-orders-details/purchase-orders-details.module').then( m => m.PurchaseOrdersDetailsModule)
+      }
+    ]
+  },
+  {
     path: 'add-product-modal',
     loadChildren: () => import('../app/pages/add-product-modal/add-product-modal.module').then( m => m.AddProductModalPageModule)
+  },
+  {
+    path: 'receive-history-modal',
+    loadChildren: () => import('../app/pages/receive-history-modal/receive-history-modal.module').then( m => m.ReceiveHistoryModalPageModule)
   },
   {
     path: 'settings',
