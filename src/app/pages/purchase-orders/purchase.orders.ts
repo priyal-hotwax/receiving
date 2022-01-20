@@ -62,14 +62,15 @@ export class PurchaseOrders {
   }
 
   getPurchaseOrder(event, viewSize, field, group, limit) {
-    if (event && event.key === 'Enter') {
+    console.log(event, event.target.value);
+    if (event && event.key === 'Enter' && event.target.value.length > 3) {
       this.widgetProvider.presentLoader('');
-      this.utilProvider.getPurchaseOrders(this.viewSize,this.field, this.group, this.limit).then((data: any) => {
+      this.utilProvider.getPurchaseOrders(this.viewSize,this.field, this.group, this.limit,  event.target.value).then((data: any) => {
         if(data.length) {
-          this.utilProvider.shipments = data;
+          this.orders = data;
         } else {
           this.orderId = '';
-          this.widgetProvider.showToast(this.translate.instant('NoResultsFound') + ' ' + field);
+          this.widgetProvider.showToast(this.translate.instant('NoResultsFound'));
         }
         this.widgetProvider.dismissLoader();
       }).catch((e) => {

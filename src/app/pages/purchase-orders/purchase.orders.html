@@ -11,7 +11,7 @@
 <ion-content>
     <ng-container *ngIf="orders?.length; else noShipments">
       <div>
-        <ion-searchbar [(ngModel)]="shipmentId" placeholder="{{ 'Search' | translate }}" (keypress)="getShipment($event, shipmentId)"
+        <ion-searchbar [(ngModel)]="shipmentId" placeholder="{{ 'Search' | translate }}" (keypress)="getPurchaseOrder($event, shipmentId)"
           (ionClear)="clearShipment()">
         </ion-searchbar>
         <ion-list>

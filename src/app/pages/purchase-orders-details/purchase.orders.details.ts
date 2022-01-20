@@ -69,6 +69,7 @@ export class PurchaseOrdersDetails implements OnInit {
     this.utilProvider.getPurchaseOrders(viewSize, field, group, limit, orderId).then((data: any) => {
         if (data) {
           this.orderDetails = data[0];
+          this.orderDetails.quantityAccepted = 0;
           this.storageProvider.setLocalStorageItem(orderId, JSON.stringify(this.orderDetails));
         }
         this.widgetProvider.dismissLoader();
@@ -82,31 +83,27 @@ export class PurchaseOrdersDetails implements OnInit {
 
   receiveAll(item) {
     // Accept the quantity as same as ordered quantity
-    this.shipment.items.filter(ele => {
-      if(ele.itemSeqId == item.itemSeqId) {
-        ele.quantityAccepted = ele.quantityOrdered;
-        // The 'value' properties of progress bar should be between 0 and 1 hence set the value accordingly.
-        ele.progress = ele.quantityAccepted / ele.quantityOrdered
-        this.storageProvider.setLocalStorageItem(this.shipment.shipmentId, JSON.stringify(this.shipment))
-      }
-    })
+    // this.shipment.items.filter(ele => {
+    //   if(ele.itemSeqId == item.itemSeqId) {
+    //     ele.quantityAccepted = ele.quantityOrdered;
+    //     // The 'value' properties of progress bar should be between 0 and 1 hence set the value accordingly.
+    //     ele.progress = ele.quantityAccepted / ele.quantityOrdered
+    //     this.storageProvider.setLocalStorageItem(this.shipment.shipmentId, JSON.stringify(this.shipment))
+    //   }
+    // })
+    item.progress = item.quantity;
   }
 
   setAcceptedQuantity(item, qty) {
     // WM can accept less or more than ordered quantity
-    item.progress = qty / item.quantityOrdered;
-    this.shipment.items.filter(ele => {
-      if(ele.productId == item.productId && ele.itemSeqId == item.itemSeqId) {
-        ele.quantityAccepted = qty;
-        this.storageProvider.setLocalStorageItem(this.shipment.shipmentId, JSON.stringify(this.shipment))
-      }
-    })
+    item.progress = qty / item.quantity;
+    item.quantityAccepted = qty;
   }
 
   async receiveShipmentItems() {
     const alert = await this.alertController.create({
       cssClass: '',
-      header: this.translate.instant('CompleteShipment'),
+      header: this.translate.instant('Receive Shipment'),
       message: this.translate.instant('ConfirmQuantity'),
       buttons: [
         {
@@ -116,25 +113,25 @@ export class PurchaseOrdersDetails implements OnInit {
           handler: () => {
           }
         }, {
-          text: this.translate.instant('Complete'),
+          text: this.translate.instant('Proceed'),
           handler: () => {
             let shipmentParam = {
-              shipmentId: this.shipment.shipmentId,
+              orderId: this.orderDetails.orderId,
               statusId : "PURCH_SHIP_RECEIVED"
             }
             this.widgetProvider.presentLoader('');
-            this.shipment.items.filter(item => {
-              if(item.quantityAccepted > 0) {
+              if(this.orderDetails.quantityAccepted > 0) {
                 let params = {
-                  shipmentId: this.shipment.shipmentId,
-                  facilityId: this.utilProvider.facilityId,
-                  shipmentItemSeqId: item.itemSeqId,
-                  productId: item.productId,
-                  quantityAccepted: item.quantityAccepted,
-                  locationSeqId: this.shipment.locationSeqId
+                  shipmentId: this.orderDetails.orderId,
+                  facilityId: this.orderDetails.facilityId,
+                  shipmentItemSeqId: this.orderDetails.orderItemSeqId,
+                  productId: this.orderDetails.productId,
+                  quantityAccepted: this.orderDetails.quantityAccepted,
+                  locationSeqId: this.orderDetails.locationSeqId
                 }
+
                 this.hcProvider.callRequest('post', 'receiveShipmentItem', params).subscribe((data: any) => {
-                  if( data.body && (item.quantityAccepted == data.body.quantityAccepted)) {
+                  // if( data.body && (item.quantityAccepted == data.body.quantityAccepted)) {
                     this.hcProvider.callRequest('post', 'updateShipment', shipmentParam).subscribe((data: any) => {
                       if(data.body && data.body._EVENT_MESSAGE_) {
                         this.storageProvider.removeLocalStorageItem(this.shipment.shipmentId);
@@ -143,10 +140,8 @@ export class PurchaseOrdersDetails implements OnInit {
                       }
                     })
                     this.widgetProvider.dismissLoader();
-                  } else {
-                    this.widgetProvider.dismissLoader();
-                    this.widgetProvider.showToast(this.translate.instant('SomethingWentWrong'));
-                  }
+                  // } else {
+                  // }
                 }, (err) => {
                   this.widgetProvider.dismissLoader();
                   this.widgetProvider.showToast(err);
@@ -156,7 +151,7 @@ export class PurchaseOrdersDetails implements OnInit {
                 this.widgetProvider.dismissLoader();
                 this.widgetProvider.showToast(this.translate.instant('ZeroQuantity'))
               }
-            })
+            // })
           }
         }
       ]

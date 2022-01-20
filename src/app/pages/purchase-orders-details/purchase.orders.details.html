@@ -61,17 +61,17 @@
             <ion-col size="3" class="ion-align-self-center">
               <ion-label>Qty</ion-label>
               <ion-item>
-                <ion-input [value]="orderDetails?.quantity" type="number" #qty min="0" [readonly]="orderDetails?.orderStatusId === 'ORDER_CREATED' ? true : false" (input)="setAcceptedQuantity(item, qty.value)"></ion-input>
+                <ion-input [value]="orderDetails?.quantityAccepted" type="number" #qty min="0" (input)="setAcceptedQuantity(orderDetails, qty.value)"></ion-input>
               </ion-item>
             </ion-col>
           </ion-row>
         </ion-card-content>
         <ion-item class="border-top" *ngIf ="orderDetails?.quantity > 0">
-          <ion-button slot="start" fill="outline" (click)="receiveAll(item)" *ngIf="orderDetails?.orderStatusId === 'ORDER_CREATED'">
+          <ion-button slot="start" fill="outline" (click)="receiveAll(orderDetails)">
             {{ 'ReceiveAll' | translate}}
           </ion-button>
-          <ion-progress-bar [value]="3" color="primary"></ion-progress-bar>
-          <p slot="end">{{ orderDetails?.orderItemSubTotal }}</p>
+          <ion-progress-bar [value]="orderDetails?.progress" color="{{ orderDetails?.progress > 1 ? 'danger' : 'primary'}}"></ion-progress-bar>
+          <p slot="end">{{ orderDetails?.quantity }}</p>
         </ion-item>
       </ion-card>
     </div>
