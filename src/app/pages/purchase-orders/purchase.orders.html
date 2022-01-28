@@ -15,7 +15,7 @@
           (ionClear)="clearShipment()">
         </ion-searchbar>
         <ion-list>
-          <ion-item *ngFor="let order of orders" [routerLink]="['/purchase-orders', order.orderId]">
+          <ion-item *ngFor="let order of orders" (click)="purchaseOrderDetails(order.orderId, order)" class="item-wrapper">
             <ion-label>
               <h2>{{order?. orderId}}</h2>
               <p>{{ order?.orderStatusId }}</p>

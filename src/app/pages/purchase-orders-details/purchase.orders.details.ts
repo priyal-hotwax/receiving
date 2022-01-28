@@ -56,7 +56,12 @@ export class PurchaseOrdersDetails implements OnInit {
         return;
       }
       const orderId = paramMap.get('id');
-      this.getPurchaseOrderDetail(orderId, this.viewSize, this.field, this.group, this.limit);
+      let storedOrder = JSON.parse(this.storageProvider.getLocalStorageItem(orderId));
+      if(storedOrder) {
+        this.orderDetails = storedOrder;
+      } else {
+        this.getPurchaseOrderDetail(orderId, this.viewSize, this.field, this.group, this.limit);
+      }
     })
   }
 
@@ -92,12 +97,14 @@ export class PurchaseOrdersDetails implements OnInit {
     //   }
     // })
     item.progress = item.quantity;
+    this.storageProvider.setLocalStorageItem(this.orderDetails.orderId, JSON.stringify(this.orderDetails));
   }
 
   setAcceptedQuantity(item, qty) {
     // WM can accept less or more than ordered quantity
     item.progress = qty / item.quantity;
     item.quantityAccepted = qty;
+    this.storageProvider.setLocalStorageItem(this.orderDetails.orderId, JSON.stringify(this.orderDetails));
   }
 
   async receiveShipmentItems() {
@@ -134,7 +141,7 @@ export class PurchaseOrdersDetails implements OnInit {
                   // if( data.body && (item.quantityAccepted == data.body.quantityAccepted)) {
                     this.hcProvider.callRequest('post', 'updateShipment', shipmentParam).subscribe((data: any) => {
                       if(data.body && data.body._EVENT_MESSAGE_) {
-                        this.storageProvider.removeLocalStorageItem(this.shipment.shipmentId);
+                        this.storageProvider.removeLocalStorageItem(this.orderDetails.orderId);
                         this.widgetProvider.showToast(this.translate.instant('ShipmentReceived') + ' ' + data.body.shipmentId)
                         this.router.navigateByUrl('/home');
                       }

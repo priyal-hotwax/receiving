@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { StorageProvider } from 'src/app/providers/storage.provider';
 import { UtilProvider } from '../../providers/util.provider';
 import { WidgetProvider } from './../../providers/widget.provider';
 
@@ -20,7 +22,9 @@ export class PurchaseOrders {
   constructor(
     public translate: TranslateService,
     public utilProvider: UtilProvider,
-    private widgetProvider: WidgetProvider
+    private widgetProvider: WidgetProvider,
+    private router: Router,
+    private storageProvider:StorageProvider
   ) {
   }
 
@@ -77,6 +81,12 @@ export class PurchaseOrders {
         this.widgetProvider.dismissLoader();
       })
     }
+  }
+
+  purchaseOrderDetails(orderId, orderDetails) {
+    this.router.navigate(['/purchase-orders', orderId]);
+    this.storageProvider.setLocalStorageItem(orderId, JSON.stringify(orderDetails));
+
   }
 
   clearShipment() {
